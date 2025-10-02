@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Docusaurus 3.9.1 website project (static site generator). The project uses React 19, TypeScript, and is configured to support Docusaurus v4 compatibility via future flags.
 
+Concept is at @concept.md
+
 ## Development Commands
 
 ```bash
@@ -44,6 +46,7 @@ npm run clear
 ### Key Configuration Files
 
 - **[docusaurus.config.ts](docusaurus.config.ts)**: Controls site metadata, URLs, theme config, navbar, footer, and presets
+
   - Uses `classic` preset with docs, blog, and theme plugins
   - Configured for dark/light mode with `respectPrefersColorScheme: true`
   - Breaks on broken links (`onBrokenLinks: "throw"`)

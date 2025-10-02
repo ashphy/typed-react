@@ -1,0 +1,417 @@
+import React from 'react';
+
+# 文字列リテラルのユニオン型
+
+タスク管理アプリで、タスクのステータスを表示するバッジコンポーネントを作ってみましょう。
+
+export function StatusBadgeString({ status }) {
+  let label = "";
+  let color = "";
+  if (status === "todo") {
+    label = "未着手";
+    color = "gray";
+  } else if (status === "in-progress") {
+    label = "進行中";
+    color = "blue";
+  } else if (status === "done") {
+    label = "完了";
+    color = "green";
+  } else if (status === "archived") {
+    label = "アーカイブ済み";
+    color = "purple";
+  }
+  return (
+    <span style={{
+      color,
+      padding: "4px 8px",
+      borderRadius: "4px",
+      backgroundColor: "#f0f0f0",
+      border: `1px solid ${color}`,
+      display: "inline-block",
+      fontSize: "0.875rem",
+      fontWeight: 500
+    }}>
+      {label}
+    </span>
+  );
+}
+
+<div style={{ display: "flex", gap: "8px", padding: "16px", backgroundColor: "#fafafa", borderRadius: "8px", marginBottom: "16px" }}>
+  <StatusBadgeString status="todo" />
+  <StatusBadgeString status="in-progress" />
+  <StatusBadgeString status="done" />
+  <StatusBadgeString status="archived" />
+</div>
+
+### コード
+
+```tsx
+interface Task {
+  id: number;
+  title: string;
+  status: string;
+}
+
+interface StatusBadgeProps {
+  status: string;
+}
+
+function StatusBadge({ status }: StatusBadgeProps) {
+  let label = "";
+  let color = "";
+
+  if (status === "todo") {
+    label = "未着手";
+    color = "gray";
+  } else if (status === "in-progress") {
+    label = "進行中";
+    color = "blue";
+  } else if (status === "done") {
+    label = "完了";
+    color = "green";
+  } else if (status === "archived") {
+    label = "アーカイブ済み";
+    color = "purple";
+  }
+
+  return (
+    <span style={{ color, padding: "4px 8px", borderRadius: "4px" }}>
+      {label}
+    </span>
+  );
+}
+```
+
+### 使用例
+
+```tsx
+function TaskList() {
+  const tasks: Task[] = [
+    { id: 1, title: "TypeScriptを学ぶ", status: "done" },
+    { id: 2, title: "Reactを学ぶ", status: "in-progress" },
+    { id: 3, title: "アプリを作る", status: "todo" },
+  ];
+
+  return (
+    <ul>
+      {tasks.map((task) => (
+        <li key={task.id}>
+          {task.title} <StatusBadge status={task.status} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+一見動きそうに見えますが、この実装にはいくつか問題があります。
+
+## 問題点
+
+### 1. タイポが検出されない
+
+```tsx
+const task: Task = {
+  id: 1,
+  title: "TypeScriptを学ぶ",
+  status: "doen", // ❌ "done" のタイポだがコンパイルは通る
+};
+```
+
+タイポがあってもコンパイルエラーにならず、実行時にバッジが空白で表示されてしまいます。
+
+### 2. IDE の補完が効かない
+
+`status` を入力するとき、どんな値が有効なのか IDE が教えてくれません。毎回、他のコードを見て確認する必要があります。
+
+### 3. 不正な値を渡せてしまう
+
+```tsx
+const task: Task = {
+  id: 2,
+  title: "ドキュメントを書く",
+  status: "完了", // ❌ 日本語でもコンパイルは通る
+};
+
+const task2: Task = {
+  id: 3,
+  title: "レビューする",
+  status: "pending", // ❌ 未定義のステータスでもコンパイルは通る
+};
+```
+
+`string` 型ではどんな文字列でも受け付けてしまうため、想定外の値が紛れ込む可能性があります。
+
+### 4. すべてのステータスを網羅しているか分からない
+
+新しいステータス `"blocked"` を追加したとき、`StatusBadge` コンポーネントの `if` 文を更新し忘れても、コンパイルエラーになりません。
+
+## 解決: 文字列リテラルユニオン型
+
+特定の文字列値だけを許可するように型を定義します。
+
+### 実際の表示例
+
+export function StatusBadgeTyped({ status }) {
+  const label = {
+    todo: "未着手",
+    "in-progress": "進行中",
+    done: "完了",
+    archived: "アーカイブ済み",
+  }[status];
+  const color = {
+    todo: "gray",
+    "in-progress": "blue",
+    done: "green",
+    archived: "purple",
+  }[status];
+  return (
+    <span style={{
+      color,
+      padding: "4px 8px",
+      borderRadius: "4px",
+      backgroundColor: "#f0f0f0",
+      border: `1px solid ${color}`,
+      display: "inline-block",
+      fontSize: "0.875rem",
+      fontWeight: 500
+    }}>
+      {label}
+    </span>
+  );
+}
+
+<div style={{ display: "flex", gap: "8px", padding: "16px", backgroundColor: "#fafafa", borderRadius: "8px", marginBottom: "16px" }}>
+  <StatusBadgeTyped status="todo" />
+  <StatusBadgeTyped status="in-progress" />
+  <StatusBadgeTyped status="done" />
+  <StatusBadgeTyped status="archived" />
+</div>
+
+見た目は同じですが、型安全性が大きく向上しています。
+
+### コード
+
+```tsx
+type TaskStatus = "todo" | "in-progress" | "done" | "archived";
+
+interface Task {
+  id: number;
+  title: string;
+  status: TaskStatus; // ✅ 4つの値のみ許可
+}
+
+interface StatusBadgeProps {
+  status: TaskStatus;
+}
+
+function StatusBadge({ status }: StatusBadgeProps) {
+  const label = {
+    todo: "未着手",
+    "in-progress": "進行中",
+    done: "完了",
+    archived: "アーカイブ済み",
+  }[status];
+
+  const color = {
+    todo: "gray",
+    "in-progress": "blue",
+    done: "green",
+    archived: "purple",
+  }[status];
+
+  return (
+    <span style={{ color, padding: "4px 8px", borderRadius: "4px" }}>
+      {label}
+    </span>
+  );
+}
+```
+
+### 改善点
+
+**1. タイポが即座に検出される**
+
+```tsx
+const task: Task = {
+  id: 1,
+  title: "TypeScriptを学ぶ",
+  status: "doen", // ❌ エラー: "doen" は TaskStatus に含まれない
+};
+```
+
+**2. 不正な値を渡せない**
+
+```tsx
+const task: Task = {
+  id: 2,
+  title: "ドキュメントを書く",
+  status: "完了", // ❌ エラー: "完了" は TaskStatus に含まれない
+};
+
+const task2: Task = {
+  id: 3,
+  title: "レビューする",
+  status: "pending", // ❌ エラー: "pending" は TaskStatus に含まれない
+};
+```
+
+**3. IDE が補完してくれる**
+
+`status: ` と入力すると、IDE が `"todo"`, `"in-progress"`, `"done"`, `"archived"` を候補として提示してくれます。
+
+**4. 有効な値が一目瞭然**
+
+型定義を見れば、どんな値が許可されているかすぐに分かります。
+
+## 状態遷移の型安全な実装
+
+タスクの状態遷移には、許可されたパターンがあります：
+
+- `todo` → `in-progress` のみ
+- `in-progress` → `done` または `todo` に戻る
+- `done` → `archived`
+- `archived` → 遷移なし
+
+これを型で表現してみましょう。
+
+```tsx
+type TaskStatus = "todo" | "in-progress" | "done" | "archived";
+
+// 各ステータスから遷移可能なステータスの一覧
+const allowedTransitions: Record<TaskStatus, TaskStatus[]> = {
+  todo: ["in-progress"],
+  "in-progress": ["todo", "done"],
+  done: ["archived"],
+  archived: [],
+};
+
+function canTransition(from: TaskStatus, to: TaskStatus): boolean {
+  return allowedTransitions[from].includes(to);
+}
+
+// 使用例
+canTransition("todo", "in-progress"); // true
+canTransition("todo", "done"); // false（直接完了にはできない）
+canTransition("done", "todo"); // false（完了から未着手には戻せない）
+````
+
+### ステータス更新コンポーネント
+
+```tsx
+interface TaskItemProps {
+  task: Task;
+  onStatusChange: (id: number, newStatus: TaskStatus) => void;
+}
+
+function TaskItem({ task, onStatusChange }: TaskItemProps) {
+  const nextStatuses = allowedTransitions[task.status];
+
+  return (
+    <div>
+      <h3>{task.title}</h3>
+      <StatusBadge status={task.status} />
+
+      {nextStatuses.length > 0 && (
+        <div>
+          <p>ステータスを変更:</p>
+          {nextStatuses.map((nextStatus) => (
+            <button
+              key={nextStatus}
+              onClick={() => onStatusChange(task.id, nextStatus)}
+            >
+              {nextStatus}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+## Record 型との組み合わせ
+
+`Record<K, V>` 型を使うと、すべてのステータスに対応する値を定義できます。
+
+```tsx
+type TaskStatus = "todo" | "in-progress" | "done" | "archived";
+
+// すべてのステータスに対応する色を定義
+const statusColors: Record<TaskStatus, string> = {
+  todo: "#gray",
+  "in-progress": "#blue",
+  done: "#green",
+  archived: "#purple",
+};
+
+// どれか1つでも欠けているとエラー
+const incomplete: Record<TaskStatus, string> = {
+  todo: "#gray",
+  "in-progress": "#blue",
+  done: "#green",
+  // ❌ エラー: archived が足りない
+};
+```
+
+### メリット
+
+- ステータスを追加したとき、対応する色の定義漏れを防げる
+- すべてのケースを網羅していることが型で保証される
+
+## フィルタリング機能
+
+```tsx
+interface TaskFilterProps {
+  currentFilter: TaskStatus | "all";
+  onFilterChange: (filter: TaskStatus | "all") => void;
+}
+
+function TaskFilter({ currentFilter, onFilterChange }: TaskFilterProps) {
+  const filters: Array<TaskStatus | "all"> = [
+    "all",
+    "todo",
+    "in-progress",
+    "done",
+    "archived",
+  ];
+
+  return (
+    <div>
+      {filters.map((filter) => (
+        <button
+          key={filter}
+          onClick={() => onFilterChange(filter)}
+          style={{
+            fontWeight: currentFilter === filter ? "bold" : "normal",
+          }}
+        >
+          {filter}
+        </button>
+      ))}
+    </div>
+  );
+}
+```
+
+## まとめ
+
+文字列リテラルのユニオン型を使うことで：
+
+- **型安全性**: タイポや不正な値を防げる
+- **補完**: IDE が有効な値を提示してくれる
+- **可読性**: どんな値が許可されているか一目瞭然
+- **保守性**: 値を追加・削除したとき、影響箇所がすぐ分かる
+
+### いつ使うべきか
+
+- 取りうる値が限定されている場合
+- 値がプログラム内で決まっている場合（ユーザー入力ではない）
+- 複数の箇所で同じ値のセットを使う場合
+
+例:
+
+- ステータス、状態
+- ボタンのバリアント（`primary`, `secondary` など）
+- サイズ（`sm`, `md`, `lg` など）
+- 方向（`top`, `right`, `bottom`, `left` など）

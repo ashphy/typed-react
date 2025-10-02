@@ -1,0 +1,306 @@
+---
+sidebar_position: 3
+---
+
+import React from 'react';
+
+# Record型で網羅性を保証する
+
+前のページで文字列リテラルのユニオン型を学びました。今度は、**各ステータスのスタイルを確実に定義する**方法を見ていきましょう。
+
+## 問題：スタイル定義の漏れ
+
+前のページの `StatusBadge` コンポーネントを見てください：
+
+```tsx
+type TaskStatus = "todo" | "in-progress" | "done" | "archived";
+
+function StatusBadge({ status }: { status: TaskStatus }) {
+  const label = {
+    todo: "未着手",
+    "in-progress": "進行中",
+    done: "完了",
+    // ❌ archived を定義し忘れた！
+  }[status];
+
+  const color = {
+    todo: "gray",
+    "in-progress": "blue",
+    done: "green",
+    archived: "purple",
+  }[status];
+
+  return (
+    <span style={{ color, padding: "4px 8px", borderRadius: "4px" }}>
+      {label}
+    </span>
+  );
+}
+```
+
+この例では、`label` オブジェクトに `archived` を定義し忘れています。しかし、**TypeScriptはエラーを出しません**。実行時に `archived` ステータスのタスクを表示すると、ラベルが `undefined` になってしまいます。
+
+export function StatusBadgeIncomplete({ status }) {
+  const label = {
+    todo: "未着手",
+    "in-progress": "進行中",
+    done: "完了",
+    // archived なし
+  }[status];
+  const color = {
+    todo: "gray",
+    "in-progress": "blue",
+    done: "green",
+    archived: "purple",
+  }[status];
+  return (
+    <span style={{
+      color,
+      padding: "4px 8px",
+      borderRadius: "4px",
+      backgroundColor: "#f0f0f0",
+      border: `1px solid ${color}`,
+      display: "inline-block",
+      fontSize: "0.875rem",
+      fontWeight: 500
+    }}>
+      {label || "(ラベルなし)"}
+    </span>
+  );
+}
+
+<div style={{ display: "flex", gap: "8px", padding: "16px", backgroundColor: "#fafafa", borderRadius: "8px", marginBottom: "16px" }}>
+  <StatusBadgeIncomplete status="todo" />
+  <StatusBadgeIncomplete status="in-progress" />
+  <StatusBadgeIncomplete status="done" />
+  <StatusBadgeIncomplete status="archived" />
+</div>
+
+最後のバッジのラベルが表示されていません！
+
+### なぜエラーにならないのか？
+
+通常のオブジェクトリテラルでは、TypeScriptは「このキーがある」ことは確認しますが、「すべてのキーが揃っているか」は確認しません。
+
+```tsx
+// これは OK （余分なキーがあってもエラーにならない）
+const obj: { a: string } = { a: "hello", b: "world" }; // ❌ エラー
+
+// これも OK （足りないキーがあってもエラーにならない）
+const partialLabel = {
+  todo: "未着手",
+  done: "完了",
+}; // ✅ エラーなし
+```
+
+## 解決：Record型
+
+`Record<Keys, Type>` は、**指定したすべてのキーが存在する**オブジェクト型を作ります。
+
+### 基本的な使い方
+
+```tsx
+type TaskStatus = "todo" | "in-progress" | "done" | "archived";
+
+// すべてのTaskStatusに対してstringの値を持つオブジェクト
+type StatusLabels = Record<TaskStatus, string>;
+
+const labels: StatusLabels = {
+  todo: "未着手",
+  "in-progress": "進行中",
+  done: "完了",
+  archived: "アーカイブ済み", // ✅ すべて定義されている
+};
+```
+
+もし1つでも欠けていると、エラーになります：
+
+```tsx
+const incompleteLabels: Record<TaskStatus, string> = {
+  todo: "未着手",
+  "in-progress": "進行中",
+  done: "完了",
+  // ❌ エラー: Property 'archived' is missing
+};
+```
+
+### 実際の表示例
+
+export function StatusBadgeComplete({ status }) {
+  const labels = {
+    todo: "未着手",
+    "in-progress": "進行中",
+    done: "完了",
+    archived: "アーカイブ済み",
+  };
+  const colors = {
+    todo: "gray",
+    "in-progress": "blue",
+    done: "green",
+    archived: "purple",
+  };
+  return (
+    <span style={{
+      color: colors[status],
+      padding: "4px 8px",
+      borderRadius: "4px",
+      backgroundColor: "#f0f0f0",
+      border: `1px solid ${colors[status]}`,
+      display: "inline-block",
+      fontSize: "0.875rem",
+      fontWeight: 500
+    }}>
+      {labels[status]}
+    </span>
+  );
+}
+
+<div style={{ display: "flex", gap: "8px", padding: "16px", backgroundColor: "#fafafa", borderRadius: "8px", marginBottom: "16px" }}>
+  <StatusBadgeComplete status="todo" />
+  <StatusBadgeComplete status="in-progress" />
+  <StatusBadgeComplete status="done" />
+  <StatusBadgeComplete status="archived" />
+</div>
+
+すべてのステータスが正しく表示されます！
+
+### 完全なコード
+
+```tsx
+type TaskStatus = "todo" | "in-progress" | "done" | "archived";
+
+interface StatusBadgeProps {
+  status: TaskStatus;
+}
+
+function StatusBadge({ status }: StatusBadgeProps) {
+  const labels: Record<TaskStatus, string> = {
+    todo: "未着手",
+    "in-progress": "進行中",
+    done: "完了",
+    archived: "アーカイブ済み",
+  };
+
+  const colors: Record<TaskStatus, string> = {
+    todo: "gray",
+    "in-progress": "blue",
+    done: "green",
+    archived: "purple",
+  };
+
+  return (
+    <span style={{ color: colors[status], padding: "4px 8px", borderRadius: "4px" }}>
+      {labels[status]}
+    </span>
+  );
+}
+```
+
+## メリット
+
+### 1. 定義漏れを防げる
+
+新しいステータス `"blocked"` を `TaskStatus` に追加すると、`Record` 型がエラーを出してくれます：
+
+```tsx
+type TaskStatus = "todo" | "in-progress" | "done" | "archived" | "blocked";
+
+const labels: Record<TaskStatus, string> = {
+  todo: "未着手",
+  "in-progress": "進行中",
+  done: "完了",
+  archived: "アーカイブ済み",
+  // ❌ エラー: Property 'blocked' is missing
+};
+```
+
+これにより、**すべての箇所で `"blocked"` の定義を追加するまでコンパイルが通らなくなります**。
+
+### 2. リファクタリングが安全
+
+ステータスの名前を変更したり削除したりしても、`Record` 型がすべての影響箇所を教えてくれます。
+
+```tsx
+// "archived" を "completed" に変更
+type TaskStatus = "todo" | "in-progress" | "done" | "completed";
+
+const labels: Record<TaskStatus, string> = {
+  todo: "未着手",
+  "in-progress": "進行中",
+  done: "完了",
+  archived: "アーカイブ済み", // ❌ エラー: 'archived' は TaskStatus に存在しない
+  // ❌ エラー: Property 'completed' is missing
+};
+```
+
+### 3. IDEのサポート
+
+`Record` 型を使うと、IDEがどのキーが必要か教えてくれます。
+
+## Recordのその他の使い方
+
+### 異なる型の値
+
+```tsx
+type TaskStatus = "todo" | "in-progress" | "done" | "archived";
+
+interface StatusConfig {
+  label: string;
+  color: string;
+  icon: string;
+}
+
+const statusConfig: Record<TaskStatus, StatusConfig> = {
+  todo: { label: "未着手", color: "gray", icon: "○" },
+  "in-progress": { label: "進行中", color: "blue", icon: "◐" },
+  done: { label: "完了", color: "green", icon: "●" },
+  archived: { label: "アーカイブ済み", color: "purple", icon: "✓" },
+};
+```
+
+### 数値のキー
+
+```tsx
+type Priority = 1 | 2 | 3;
+
+const priorityLabels: Record<Priority, string> = {
+  1: "高",
+  2: "中",
+  3: "低",
+};
+```
+
+## まとめ
+
+`Record<Keys, Type>` を使うことで：
+
+- **網羅性**: すべてのキーが定義されていることを保証
+- **安全性**: 定義漏れや変更漏れをコンパイル時に検出
+- **保守性**: 型の変更が必要な箇所をすべて教えてくれる
+- **明確性**: どんなキーが必要か型定義で明示
+
+### いつ使うべきか
+
+- ユニオン型の各値に対応するマッピングが必要なとき
+- すべての値に対して処理を定義する必要があるとき
+- 定義漏れを防ぎたいとき
+
+例：
+
+- ステータスごとのスタイル定義
+- 各言語コードに対する翻訳テキスト
+- 各ページルートに対する権限設定
+- 各APIエンドポイントに対するURL
+
+### 注意点
+
+`Record` は**すべてのキーの定義を強制**します。一部のキーだけでよい場合は `Partial<Record<Keys, Type>>` を使います：
+
+```tsx
+// すべてのステータスに翻訳がなくてもOK
+const optionalTranslations: Partial<Record<TaskStatus, string>> = {
+  todo: "To Do",
+  done: "Done",
+  // in-progress と archived は省略可能
+};
+```

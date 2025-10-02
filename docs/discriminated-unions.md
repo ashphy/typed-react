@@ -1,5 +1,5 @@
 ---
-sidebar_position: 7
+sidebar_position: 4
 ---
 
 # 判別可能なユニオン型
@@ -33,6 +33,8 @@ type ApiResponse = SuccessResponse | ErrorResponse;
 ### なぜ必要なのか
 
 判別子がないと、TypeScript はどちらの型なのか判断できません。
+
+[TypeScript Playground で開く](https://www.typescriptlang.org/play/?#code/JYWwDg9gTgLgBAJQKYEMDG8BmUIjgcilQ3wChSYBPMJRJAZ0gDt7aBeOAbzgBMUYUALjj0YUYEwDmcAL5wAPlzhIoOKMNHipsgNzlMAVyYZgEJr2CMANikoAKIozOthyJyyQBKLqThwA9P5wgJYMgIYMgJEMgHYMgOsMgLcMgIsMgGMMgMUMgDIMgBragBTqgJoMgNEMgNIMgGBK+eGAVgyAIgy+cGjOEFZIAHRWEJIODMysDXwCnnoyQA)
 
 ```tsx
 // ❌ 判別子がない場合

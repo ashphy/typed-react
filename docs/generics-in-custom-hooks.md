@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 # ジェネリクスを使ったカスタムフックの型定義
@@ -9,6 +9,8 @@ sidebar_position: 4
 ## 前回の値を保持する usePrevious
 
 値が変更されたときに、前回の値と比較したい場面があります。
+
+[TypeScript Playground で開く](https://www.typescriptlang.org/play/?#code/JYWwDg9gTgLgBAJQKYEMDG8BmUIjgcilQ3wChTMBXAOw2AmrkoGckAFIgN3pYApOUAG0pIAXHBTUAngEo4Ab1Jw4aBs3hFMcALyJiMAHQskyTL2qVBgmQG4le9IeMBRTJiQZevOdoB8C+2VNAzRKKCJqeF0BYSQ7ZQBfABo4AG0YkQBdW3siGDDGYNDwpEi7BPIqWhh6RgBhCBoYJChvAOVVanU01SaU1hgGpsydBwwjVgBlGBRm3gAGHI61eDAuIcjR4w4kbkbmXl7InNykfKhGXkC4AB4AE2BOX2vlG7BfQD-nQAp1QDsGQGqGQBlDIBnhkAEwzieRHGAJG4AeneL1u70AskqAPbV-sCwQo1rsNlDYfDlITbgAjSgwGAMOAMOqCYBoADW2nkbT8cAGuMOjU2AGo4ABGGQJXyAdI1ACEMgE0GWGk8kMZ5E2EPJ72HIJIA)
 
 ```tsx
 function Counter() {
@@ -31,7 +33,7 @@ function Counter() {
 
 ```tsx
 function usePrevious(value: any) {
-  const ref = React.useRef();
+  const ref = React.useRef(null);
   React.useEffect(() => {
     ref.current = value;
   }, [value]);

@@ -1,5 +1,5 @@
 ---
-sidebar_position: 5
+sidebar_position: 7
 ---
 
 # カスタムフックにおける関数型の定義
@@ -29,6 +29,8 @@ const [count, setCount] = React.useState(() => {
 関数を渡すことで、初回レンダリング時のみ実行され、再レンダリングでは実行されません。これにより、重い計算を初回のみに限定できます。
 
 ### 遅延評価に対応した usePrevious の使用例
+
+[TypeScript Playground で開く](https://www.typescriptlang.org/play/?#code/JYWwDg9gTgLgBAJQKYEMDG8BmUIjgcilQ3wChTMBXAOw2AmrkoGckAFIgN3pYApOUAG0pIAXHBTUAngEo4Ab1Jw4aBs3hFMcALyJiMAHQskyTL2qVBgmQG4le9IeMBRTJiQZevOdoB8C+2VNAzRKKCJqeF0BYSQ7ZQBfABo4AG0YkQBdW3siGDDGYNDwpEi7BPIqWhh6RgBhCBoYJChvAOVVanU01SaU1hgGpsydBwwjVgBlGBRm3gAGHPsAemW4QBIFQCSGQBe3QFLjQEI7QE0Ge07usC4hyIBGUeMOJG5G5l5eyKXlVbhAItTAB1NNo8AEP+AUQTAG96gFUowCF8oBIf5Oang5welxgACZbqx7o8+G0-CpGpE4AAqODI95wPIFOC8QJwAA8ABNgJxfNTlDSwL5AH-OgAp1QB2DIBqhkAZQyAZ4ZABMM4nkrxgCRpy3ZLNp7MAskqAPbV+cKxQoEZwkVdpbLmcpDQrfCq1aKAcjALAKUPFWqRyL1cqNrIARpQYDAGHAGHVBMA0ABrbTybH+AZIl54+AAajgVxkCV8gHSNQAhDIcZW6PQwDYaZQymfYcgkgA)
 
 ```tsx
 function Counter() {
@@ -61,7 +63,7 @@ function usePrevious(value: any) {
 
   React.useEffect(() => {
     // 関数の場合は実行して値を取得
-    const actualValue = typeof value === 'function' ? value() : value;
+    const actualValue = typeof value === "function" ? value() : value;
     ref.current = actualValue;
   }, [value]);
 
@@ -90,7 +92,8 @@ function usePrevious<T>(value: T | (() => T)): T | undefined {
   const ref = React.useRef<T>();
 
   React.useEffect(() => {
-    const actualValue = typeof value === 'function' ? (value as () => T)() : value;
+    const actualValue =
+      typeof value === "function" ? (value as () => T)() : value;
     ref.current = actualValue;
   }, [value]);
 
@@ -137,7 +140,7 @@ interface User {
 
 const prev3 = usePrevious<User>(() => ({
   id: 1,
-  name: "太郎"
+  name: "太郎",
 })); // User | undefined
 ```
 
@@ -150,7 +153,7 @@ function UserList() {
   // 前回のユーザーリストを遅延評価で保持
   const prevUsers = usePrevious(() => {
     // 重い計算の例：ユーザーIDのリストを作成
-    return users.map(u => u.id);
+    return users.map((u) => u.id);
   }); // number[] | undefined
 
   React.useEffect(() => {
@@ -161,7 +164,7 @@ function UserList() {
 
   return (
     <ul>
-      {users.map(user => (
+      {users.map((user) => (
         <li key={user.id}>{user.name}</li>
       ))}
     </ul>

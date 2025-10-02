@@ -1,5 +1,5 @@
 ---
-sidebar_position: 6
+sidebar_position: 3
 ---
 
 # 基本的な型の絞り込み
@@ -9,6 +9,8 @@ sidebar_position: 6
 ## なぜ型の絞り込みが必要なのか
 
 以下の例を見てみましょう。
+
+[TypeScript Playground で開く](https://www.typescriptlang.org/play/?#code/JYWwDg9gTgLgBAJQKYEMDG8BmUIjgcilQ3wChSB6CuQQvlAeC0HsGQB1NASBUAMGQGQZBABkCpzQWijAWdqA7BkAsGoAgVQEEMgIQZA0QylMAVwB2GYBCVwAClGBokAEWABnMABsUATwAUAbzhgdeuAF8AXHDsPdSd0oUgAIyQoOAAfOD9TUxcASg9SODgiGAUoDQAeExQlAD4bLz0AOhgIABkINBRTJABlGB0lAHMrGOdAMMV0iizcgG5SZyA)
 
 ```tsx
 // 価格は数値だが、未設定の場合もある

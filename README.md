@@ -1,41 +1,67 @@
-# Website
+# Typed React
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+> 実践例で学ぶTypeScriptの型システムとReactの型パターン
 
-## Installation
+TypeScript初心者がReactの型定義を習得するための実践的な学習サイトです。型システムの基礎から実務で使えるパターンまで、豊富なコード例とインタラクティブなデモで学べます。
+
+## 🎯 特徴
+
+- **型システムの基礎から学べる**: TypeScriptの型システムを段階的に理解
+- **実践的な例**: タスク管理アプリなど、実際の開発で使えるパターンを紹介
+- **インタラクティブなデモ**: 実際に動作するコンポーネントで視覚的に理解
+- **初心者にやさしい**: 専門用語を丁寧に説明、豊富なコード例でサポート
+
+## 📚 学習内容
+
+### 1. TypeScript型システムの基礎
+- プリミティブ型、オブジェクト型、配列
+- ユニオン型、インターセクション型
+- リテラル型、型エイリアス vs インターフェース
+- ジェネリクス、ユーティリティ型
+
+### 2. Reactコンポーネントの型付け
+- 関数コンポーネントの型、Props の型定義
+- State の型、イベントハンドラーの型
+- カスタムフックの型定義
+
+### 3. 実践的なパターン
+- 型の再利用、型安全なフォーム処理
+- 条件分岐と型、型ガード
+
+## 🚀 開発
+
+このサイトは [Docusaurus](https://docusaurus.io/) で構築されています。
+
+### インストール
 
 ```bash
-yarn
+npm install
 ```
 
-## Local Development
+### ローカル開発
 
 ```bash
-yarn start
+npm start
 ```
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+ブラウザが自動的に開き、変更がライブリロードされます。
 
-## Build
+### ビルド
 
 ```bash
-yarn build
+npm run build
 ```
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+静的ファイルが `build` ディレクトリに生成されます。
 
-## Deployment
-
-Using SSH:
+### デプロイ
 
 ```bash
-USE_SSH=true yarn deploy
+npm run deploy
 ```
 
-Not using SSH:
+GitHub Pages にデプロイされます。
 
-```bash
-GIT_USER=<Your GitHub username> yarn deploy
-```
+## 📝 ライセンス
 
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+MIT

@@ -2,7 +2,7 @@
 sidebar_position: 8
 ---
 
-# Index Signature（インデックスシグネチャ）
+# インデックスシグネチャ
 
 API から次のような JSON レスポンスが返ってきたとします。
 

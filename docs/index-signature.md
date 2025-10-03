@@ -80,6 +80,14 @@ const user = response.users["999"];
 
 [**Index Signature（インデックスシグネチャ）**](https://typescriptbook.jp/reference/values-types-variables/object/index-signature) を使えば、動的なプロパティ名を持つオブジェクトの型を定義できます。
 
+```ts
+const User: {
+  [K: string]: User;
+};
+```
+
+`[userId: string]: User` という記法が Index Signature です。これは「任意の文字列キーに対して、`User` 型の値が入る」という意味になります。
+
 ```tsx
 interface User {
   id: number;
@@ -96,8 +104,6 @@ interface ApiResponse {
   users: UsersMap;
 }
 ```
-
-`[userId: string]: User` という記法が Index Signature です。これは「任意の文字列キーに対して、`User` 型の値が入る」という意味になります。
 
 ```tsx
 const response: ApiResponse = {

@@ -93,29 +93,6 @@ if (typeof prevCount === "number") {
 }
 ```
 
-### オブジェクト型での使用
-
-```tsx
-interface User {
-  id: number;
-  name: string;
-}
-
-function UserProfile({ user }: { user: User }) {
-  const prevUser = usePrevious(user); // User | undefined
-
-  React.useEffect(() => {
-    if (prevUser && prevUser.id !== user.id) {
-      console.log(
-        `ユーザーが ${prevUser.name} から ${user.name} に変更されました`
-      );
-    }
-  }, [user, prevUser]);
-
-  return <div>{user.name}</div>;
-}
-```
-
 ## まとめ
 
 - `any` を使うと型安全性が失われる

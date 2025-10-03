@@ -39,3 +39,5 @@ TypeScriptでReactを書く際、最も重要なのは**型の理解**です。�
 - [TypeScript Deep Dive 日本語版 - GitBook](https://typescript-jp.gitbook.io/deep-dive)
 - [React TypeScript Cheatsheets](https://react-typescript-cheatsheet.netlify.app/)
 - [Effective TypeScript 第2版 ―型システムの力を最大限に引き出す83項目](https://www.oreilly.co.jp/books/9784814401093/)
+- [TypeHero](https://typehero.dev/)
+- [Type challenges](https://tsch.js.org/)

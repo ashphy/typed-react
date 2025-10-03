@@ -4,7 +4,7 @@ sidebar_position: 5
 
 # ジェネリクスを使った型定義
 
-カスタムフックに型引数（ジェネリクス）を導入することで、柔軟で型安全なフックを作ることができます。
+カスタムフックに[型引数（ジェネリクス）](https://typescriptbook.jp/reference/generics)を導入することで、柔軟で型安全なフックを作ることができます。
 
 ## 前回の値を保持する usePrevious
 
@@ -28,6 +28,13 @@ function Counter() {
 ```
 
 このような `usePrevious` フックがあると便利です。実装してみましょう。
+
+:::tip
+
+usePrevious フックはよく使われるのでいくつかライブラリがあります。
+実際には [useHooks の usePrevious](https://usehooks.com/useprevious) などを使ってください。
+
+:::
 
 ### 実装例
 

@@ -152,49 +152,47 @@ const task2: Task = {
 
 新しいステータス `"blocked"` を追加したとき、`StatusBadge` コンポーネントの `if` 文を更新し忘れても、コンパイルエラーになりません。
 
-## 解決: 文字列リテラルユニオン型
+## 解決:ユニオン型
 
-特定の文字列値だけを許可するように型を定義します。
+### ユニオン型とは
 
-### 実際の表示例
+[ユニオン型 (union type) | TypeScript入門『サバイバルTypeScript』](https://typescriptbook.jp/reference/values-types-variables/union)
 
-export function StatusBadgeTyped({ status }) {
-  const label = {
-    todo: "未着手",
-    "in-progress": "進行中",
-    done: "完了",
-    archived: "アーカイブ済み",
-  }[status];
-  const color = {
-    todo: "gray",
-    "in-progress": "blue",
-    done: "green",
-    archived: "purple",
-  }[status];
-  return (
-    <span style={{
-      color,
-      padding: "4px 8px",
-      borderRadius: "4px",
-      backgroundColor: "#f0f0f0",
-      border: `1px solid ${color}`,
-      display: "inline-block",
-      fontSize: "0.875rem",
-      fontWeight: 500
-    }}>
-      {label}
-    </span>
-  );
-}
+ユニオン型は、複数の型のうち「いずれか1つ」を表す型です。`|` (パイプ記号) で型を区切って定義します。
 
-<div style={{ display: "flex", gap: "8px", padding: "16px", backgroundColor: "#fafafa", borderRadius: "8px", marginBottom: "16px" }}>
-  <StatusBadgeTyped status="todo" />
-  <StatusBadgeTyped status="in-progress" />
-  <StatusBadgeTyped status="done" />
-  <StatusBadgeTyped status="archived" />
-</div>
+```tsx
+type StringOrNumber = string | number;
 
-見た目は同じですが、型安全性が大きく向上しています。
+const value1: StringOrNumber = "hello"; // ✅ OK
+const value2: StringOrNumber = 123; // ✅ OK
+const value3: StringOrNumber = true; // ❌ エラー: boolean は許可されていない
+```
+
+### 文字列リテラル型
+
+文字列リテラル型は、特定の文字列値だけを表す型です。
+
+```tsx
+type Todo = "todo";
+
+const status1: Todo = "todo"; // ✅ OK
+const status2: Todo = "done"; // ❌ エラー: "done" は許可されていない
+```
+
+### ユニオン型 + 文字列リテラル型
+
+これらを組み合わせることで、**特定の文字列値のみを許可する型**を定義できます。
+
+```tsx
+type TaskStatus = "todo" | "in-progress" | "done" | "archived";
+
+const status1: TaskStatus = "todo"; // ✅ OK
+const status2: TaskStatus = "done"; // ✅ OK
+const status3: TaskStatus = "doen"; // ❌ エラー: タイポが検出される
+const status4: TaskStatus = "pending"; // ❌ エラー: 未定義の値は拒否される
+```
+
+これを使って、先ほどのコードを改善してみましょう。
 
 ### コード
 

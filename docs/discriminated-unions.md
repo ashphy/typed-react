@@ -6,7 +6,7 @@ sidebar_position: 4
 
 [基本的な型の絞り込み](./type-narrowing-basics.md)では、`typeof` や等価性チェックを使った型の絞り込みを学びました。しかし、複雑なオブジェクト型のユニオンを扱う場合、これらの方法だけでは不十分なことがあります。
 
-この章では、**判別可能なユニオン型（Discriminated Unions）** という強力なパターンを学びます。
+この章では、[**判別可能なユニオン型（Discriminated Unions）**](https://typescriptbook.jp/reference/values-types-variables/discriminated-union) という強力なパターンを学びます。
 
 ## 判別可能なユニオン型とは
 

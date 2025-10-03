@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # 基本的な型の絞り込み
 
-ある変数がユニオン（複数の型の組み合わせ）であるとき、どの型の変数であるかによって動作を変えなければいけないことがあります。TypeScript では条件分岐を用いることで **型の絞り込み（Type Narrowing）** を行うことができます。
+ある変数がユニオン（複数の型の組み合わせ）であるとき、どの型の変数であるかによって動作を変えなければいけないことがあります。TypeScript では条件分岐を用いることで [**型の絞り込み（Type Narrowing）**](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) を行うことができます。
 
 ## なぜ型の絞り込みが必要なのか
 

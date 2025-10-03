@@ -78,7 +78,7 @@ const user = response.users["999"];
 
 ## 解決策：Index Signature を使う
 
-**Index Signature（インデックスシグネチャ）** を使えば、動的なプロパティ名を持つオブジェクトの型を定義できます。
+[**Index Signature（インデックスシグネチャ）**](https://typescriptbook.jp/reference/values-types-variables/object/index-signature) を使えば、動的なプロパティ名を持つオブジェクトの型を定義できます。
 
 ```tsx
 interface User {

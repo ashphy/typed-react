@@ -29,3 +29,13 @@ TypeScriptでReactを書く際、最も重要なのは**型の理解**です。�
 左のサイドバーから、興味のあるトピックを選んで学習を始めてください。
 
 初めての方は、順番に読み進めることをおすすめします。
+
+## 参考文献
+
+以下のサイトを参考にしたと思います。
+自分で勉強したい人は以下のサイト、書籍がおすすめです。
+
+- [TypeScript入門『サバイバルTypeScript』〜実務で使うなら最低限ここだけはおさえておきたいこと〜](https://typescriptbook.jp/)
+- [TypeScript Deep Dive 日本語版 - GitBook](https://typescript-jp.gitbook.io/deep-dive)
+- [React TypeScript Cheatsheets](https://react-typescript-cheatsheet.netlify.app/)
+- [Effective TypeScript 第2版 ―型システムの力を最大限に引き出す83項目](https://www.oreilly.co.jp/books/9784814401093/)

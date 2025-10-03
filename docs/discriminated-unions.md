@@ -345,6 +345,71 @@ function getStatusMessage(state: DataState<User>): string {
 
 すべてのケースを処理することで、将来新しい状態が追加されたときに、TypeScript がエラーで教えてくれます。
 
+### satisfies を使った網羅性チェック
+
+TypeScript では、`satisfies never` を使って、すべてのケースを処理していることを確認できます。
+
+```tsx
+function getStatusMessage(state: DataState<User>): string {
+  switch (state.status) {
+    case "idle":
+      return "待機中";
+    case "loading":
+      return "読み込み中";
+    case "success":
+      return "成功";
+    case "error":
+      return "エラー";
+  }
+  // ✅ すべてのケースを処理していることを確認
+  state satisfies never;
+}
+```
+
+この `state satisfies never` は、switch 文ですべてのケースを処理していることを TypeScript に確認させます。もし処理していないケースがあれば、コンパイルエラーになります。
+
+#### 新しい状態を追加したとき
+
+例えば、`DataState` に新しい状態 `"refreshing"` を追加したとします。
+
+```tsx
+type DataState<T> =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "success"; data: T }
+  | { status: "error"; error: Error }
+  | { status: "refreshing" }; // ✨ 新しい状態を追加
+```
+
+この場合、`getStatusMessage` 関数は `"refreshing"` のケースを処理していないため、`state satisfies never` の行でコンパイルエラーが発生します。
+
+```tsx
+function getStatusMessage(state: DataState<User>): string {
+  switch (state.status) {
+    case "idle":
+      return "待機中";
+    case "loading":
+      return "読み込み中";
+    case "success":
+      return "成功";
+    case "error":
+      return "エラー";
+  }
+  // ❌ エラー！"refreshing" のケースが処理されていない
+  state satisfies never;
+}
+```
+
+これにより、型定義の変更に対して、関連するすべてのコードを更新し忘れることを防げます。
+
+#### なぜ重要か
+
+- **型の進化に対応**: 新しい状態や種類を追加したとき、TypeScript が自動的に更新が必要な箇所を教えてくれます
+- **リファクタリングの安全性**: 大規模なコードベースでも、変更漏れを防げます
+- **ドキュメントとしての役割**: コードを読む人に「すべてのケースを処理している」ことを明示できます
+
+大規模なアプリケーションや、長期的にメンテナンスするコードでは、この網羅性チェックが非常に役立ちます。
+
 ## 判別子の選び方
 
 判別子には、以下のような名前がよく使われます。

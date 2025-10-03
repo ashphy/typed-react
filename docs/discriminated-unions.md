@@ -130,6 +130,182 @@ function UserProfile({ state }: { state: DataState<User> }) {
 
 この例では、`status` の値によって、どのプロパティが存在するかが決まります。TypeScript はこれを理解し、適切な補完とエラーチェックを提供します。
 
+### 例 3: ストリーミングデータの処理
+
+最近では、LLM（大規模言語モデル）API や WebSocket を使ったストリーミング処理が一般的になっています。ストリーミングでは、さまざまな種類のイベントが次々と送られてきます。
+
+#### 問題: any を使った場合
+
+型定義のないストリーミングデータは、扱いが非常に危険です。
+
+[TypeScript Playground で開く](https://www.typescriptlang.org/play/?target=99#code/JYWwDg9gTgLgBAJQKYEMDGMA0cDecCuAzkgMowoxJwC+cAZlBCHAORSoYsBQXA9L3EAy5HBQA7AJ5xASQyB-eUDGDIH0GQI7KgLzTAVgyBo+S4pC40Wnr59MYBFEAqekhhoAFmXYoQwUQHNkhSKOIAKMI3AYAC44QhgoF1cAShCAQV19AHEkUSQoCmgAHjFxAD5cLjg4cWAkABsAE1w4GHEwJBCAIjCUWEbsExAkFvAQgBEKJAA6UQgAdx8omgBuQuLSyura+qa7IwBrdpqkAA9guEbAZQZAZIZAawZAQwZAewZGmbmS8qq8ZYaDirMkLZgIcjKAFQh1ilCCEAIwABlu1B4dCMGFMojgDlQzjcAGFbBRJgUimgzGE4ABtXGiSgk7DEGCosykmAAXTgAF4CMQyINMmEIm5cj5Go0orM5sT8RjRBUyqRwsjGSIEgYsQz8jg5kU6NARGMUMB4D4hfAkAA3FLwCB0Kw2eySpyRDxeXxHM5XPlTJVFV1wfhCOC-OqkNARMDwS6ACoZAJcMgB+GKSAHEtAF+KgHMGQCyDGpACIMytdwFNPgNRqGz0ZDKZjTWok2ztTbopVJJRszhpJOb2-PdAmWEBClD2cFjlzUgHkGGp7Ms0Hhuooe4SADW1ABTqgHUGZOAdYZALcMgEWGQBjDIBihlOgCKGQD1DIBuhkAnQzTwBmDIAghlDYdOakAkQzJwfpuA17O5-MFt6pPnYkc4vEQcVDMoQK4j51l8gKiFSRgwI2HpfD8-xgYQcCAHYMNR1BAg5QoOY5wFOs5Jqh9TSIAgwyAOUMgDDDNux5nuGl43imX73sBMA5j6eYFri4DipQH4ul+TYHBxYBcR8cCABYMSaAGIMgAlDIAmwyAM8MgATDJcuG3nxcBCr+wwAUBjSADHagBhcnysxflCbqmbcczsDA+BQAimQVMA+q5DgxI0tQmS8A5TmzNQQA)
+
+```tsx
+// ❌ any を使った危険な例
+async function* fetchStreamingResponse(prompt: string): AsyncGenerator<any> {
+  yield { type: "start", timestamp: Date.now() };
+  yield { type: "chunk", text: "こんにちは" };
+  yield { type: "done", totalTokens: 10 };
+}
+
+function StreamingChat() {
+  const [content, setContent] = useState<string>("");
+
+  const handleStream = async () => {
+    for await (const event of fetchStreamingResponse("こんにちは")) {
+      // ❌ TypeScript はエラーを検出できない
+      if (event.type === "chunk") {
+        setContent(event.txt); // typo: text ではなく txt
+      }
+
+      // ❌ 存在しないプロパティにアクセスしてもエラーにならない
+      if (event.type === "done") {
+        console.log(event.tokenCount); // totalTokens の typo
+      }
+
+      // ❌ 存在しない type をチェックしてもエラーにならない
+      if (event.type === "complete") {
+        // "complete" というイベントは存在しない
+        console.log("完了");
+      }
+    }
+  };
+
+  return <div>{content}</div>;
+}
+```
+
+この例の問題点:
+
+- **プロパティ名の typo を検出できない**（`text` → `txt`、`totalTokens` → `tokenCount`）
+- **存在しないイベント型を書いてもエラーにならない**（`"complete"`）
+- **IDE の補完が効かない**（どんなプロパティがあるか分からない）
+- **実行時エラーになって初めて気づく**
+
+#### 解決策: 判別可能なユニオン型を使う
+
+判別可能なユニオン型を使えば、すべてのイベントを型安全に処理できます。
+
+```tsx
+// ✅ 型安全なストリーミングイベント定義
+type StreamStart = {
+  type: "start";
+  timestamp: number;
+};
+
+type StreamChunk = {
+  type: "chunk";
+  text: string;
+};
+
+type StreamDone = {
+  type: "done";
+  totalTokens: number;
+};
+
+type StreamError = {
+  type: "error";
+  message: string;
+};
+
+type StreamEvent = StreamStart | StreamChunk | StreamDone | StreamError;
+
+// 擬似的なストリーミング関数（async generator を使用）
+async function* fetchStreamingResponse(
+  prompt: string
+): AsyncGenerator<StreamEvent> {
+  yield { type: "start", timestamp: Date.now() };
+
+  try {
+    // 実際の API 呼び出しをシミュレート
+    const chunks = ["こんにちは", "、", "世界", "！"];
+
+    for (const chunk of chunks) {
+      // ネットワーク遅延をシミュレート
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      yield { type: "chunk", text: chunk };
+    }
+
+    yield { type: "done", totalTokens: chunks.length };
+  } catch (error) {
+    yield { type: "error", message: (error as Error).message };
+  }
+}
+
+// React コンポーネントでの使用例
+function StreamingChat() {
+  const [content, setContent] = useState<string>("");
+  const [status, setStatus] = useState<string>("待機中");
+  const [isStreaming, setIsStreaming] = useState(false);
+
+  const handleStream = async () => {
+    setContent("");
+    setIsStreaming(true);
+    let currentText = "";
+
+    // for await of でストリーミングイベントを処理
+    for await (const event of fetchStreamingResponse("こんにちは")) {
+      switch (event.type) {
+        case "start":
+          // ✅ event は StreamStart 型に絞り込まれる
+          setStatus(`開始: ${new Date(event.timestamp).toLocaleTimeString()}`);
+          break;
+
+        case "chunk":
+          // ✅ event は StreamChunk 型に絞り込まれる
+          // event.txt と typo すればエラーになる
+          currentText += event.text;
+          setContent(currentText);
+          setStatus("受信中...");
+          break;
+
+        case "done":
+          // ✅ event は StreamDone 型に絞り込まれる
+          // totalTokens が正しく補完される
+          setStatus(`完了（${event.totalTokens} トークン）`);
+          setIsStreaming(false);
+          break;
+
+        case "error":
+          // ✅ event は StreamError 型に絞り込まれる
+          setStatus(`エラー: ${event.message}`);
+          setIsStreaming(false);
+          break;
+
+        // default:
+        //   // ✅ すべてのケースを処理していれば、ここには到達しない
+        //   const _exhaustive: never = event;
+      }
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={handleStream} disabled={isStreaming}>
+        送信
+      </button>
+      <div>状態: {status}</div>
+      <div>{content}</div>
+    </div>
+  );
+}
+```
+
+**判別可能なユニオン型による改善:**
+
+- ✅ **プロパティ名の typo を即座に検出**（`event.text` の補完が効く）
+- ✅ **存在しないイベント型を書くとエラー**（`"complete"` は許可されない）
+- ✅ **各 case 内で正しい型に絞り込まれる**（`event.totalTokens` は `"done"` の時だけ存在）
+- ✅ **IDE の補完が完璧に機能**（どのプロパティが使えるか一目瞭然）
+- ✅ **実行前にエラーを発見できる**
+
+**実際の使用例:**
+
+- OpenAI API のストリーミングレスポンス
+- Anthropic Claude API のストリーミング
+- WebSocket のイベント処理
+- Server-Sent Events (SSE)
+
 ## switch 文との組み合わせ
 
 判別可能なユニオン型は、`switch` 文とも相性が良いです。
